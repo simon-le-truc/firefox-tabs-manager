@@ -22,10 +22,6 @@
         "scripts": ["background.js"],
         "persistent": false
     },
-
-    "browser_action": {
-        "default_popup": "popup.html"
-    },
     "commands": {
       "show-leftmost-tab": {
         "suggested_key": {
