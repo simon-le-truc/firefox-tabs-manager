@@ -1,16 +1,50 @@
-browser.tabs.query({}).then(tabs => {
-    const fields = []
-    for(const tab of tabs) {
-        const location = new URL(tab.url)
-        const field = fields.find(f => location.hostname == f.hostname)
-        if(field) {
-            field.tabs.push(tab)
-        } else {
-            fields.push({hostname: location.hostname, tabs: [tab], icon: tab.favIconUrl})
-        }
-    }
+// Vérifie si l'API browser est disponible, sinon utilise chrome
+const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
-    for(const field of fields) {
-        console.log(field.hostname, " : ", field.tabs)
+// Écoute les commandes définies dans manifest.json
+browserAPI.commands.onCommand.addListener(async (command) => {
+    try {
+        switch(command) {
+            case "show-leftmost-tab": {
+                let tabs = await browserAPI.tabs.query({ currentWindow: true });
+                if(tabs.length > 0) {
+                    let leftmostTabId = tabs[0].id;
+                    await browserAPI.tabs.update(leftmostTabId, { active: true });
+                }
+                break
+            }
+            case "show-right-most-tab": {
+                let tabs = await browserAPI.tabs.query({ currentWindow: true });
+                if(tabs.length > 0) {
+                    let leftmostTabId = tabs[tabs.length - 1].id;
+                    await browserAPI.tabs.update(leftmostTabId, { active: true });
+                }
+                break
+            }
+            case "move-tab-to-left": {
+                const current_tab = (await browserAPI.tabs.query({active: true, currentWindow: true}))[0]
+                if(current_tab) {
+                    browserAPI.tabs.move(current_tab.id, {index: 0})
+                } else {
+                    console.error(`L'onglet actif n'a pas été trouvé !`)
+                }
+                break
+            }
+            case "move-tab-to-right": {
+                const current_tab = (await browserAPI.tabs.query({active: true, currentWindow: true}))[0]
+                if(current_tab) {
+                    browserAPI.tabs.move(current_tab.id, {index: (await browserAPI.tabs.query({currentWindow: true})).length})
+                } else {
+                    console.error(`L'onglet actif n'a pas été trouvé !`)
+                }
+                break
+            }
+            default: {
+                console.warn(`Aucune action configuré pour "${command}".`)
+                break
+            }
+        }
+    } catch(error) {
+        console.error(`Erreur d'exécution pour "${command}" : `, error)
     }
-}).catch(console.error)
+});
