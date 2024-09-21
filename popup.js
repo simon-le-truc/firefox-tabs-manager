@@ -12,7 +12,16 @@ browser.tabs.query({}).then(tabs => {
             fields.push({hostname: location.hostname, tabs: [tab], icon: tab.favIconUrl})
         }
     }
-    document.body.innerHTML = ""
+    document.body.innerHTML = `<div>
+        <h3>Raccouris clavier :</h3>
+        <strong>Ctrl + ↖️(Home) : </strong> Accèder à l'onglet le plus à gauche.
+        <br>
+        <strong>Ctrl + Fin : </strong> Accèder à l'onglet le plus à droite.
+        <br>
+        <strong>Ctrl + Shift + ↖️(Home) : </strong> Déplacer l'onglet actuelle le plus à gauche.
+        <br>
+        <strong>Ctrl + Shif + Fin : </strong> Déplacer l'onglet actuelle le plus à droite.
+    </div>`
 
     for(const field of fields) {
         const fieldElement = document.createElement("div")
